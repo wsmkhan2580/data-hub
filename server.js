@@ -1,7 +1,9 @@
 const express = require('express')
+require('./db')
+const Post = require('./models/Post')
+const User = require('./models/User')
 const app = express()
 app.use(express.json())
-let blogPosts = []
 
 
 app.use((req,res,next) =>{
@@ -10,40 +12,35 @@ app.use((req,res,next) =>{
     next()
 })
 
-app.get('/posts',(req,res) =>{
-    res.json(blogPosts)
-})
-
- 
-app.post('/posts', (req, res) =>{
-    const post = req.body
-    post.id =Date.now()
-    blogPosts.push(post)
-    res.json(post)
-})
-
-app.get('/posts/:id',(req,res)=>{
-  const id = parseInt(req.params.id)
-  const post = blogPosts.find(p=> p.id === id)
-  if(post){
-    res.json(post)
-  }else{
-    res.status(404).json({message : 'post not found'})
+app.get('/posts', async (req,res) =>{
+  try{const posts = await Post.find().populate('authorId')
+    res.json(posts)
+  }catch(err){
+    res.status(500).json({message : err.message})
   }
 })
 
-app.delete('/posts/:id',(req,res) =>{
-    const id = parseInt(req.params.id)
-    blogPosts = blogPosts.filter(p => p.id !==id)
-    res.json({message : 'deleted'})
+ 
+app.post('/posts', async (req, res) =>{
+  
+  try{
+    const post = await Post.create(req.body)
+    res.status(201).json(post)
+  }catch(err){
+    res.status(500).json({message : err.message})
+  }
 })
 
-app.put('/posts/:id',(req,res)=>{
-  const id = parseInt(req.params.id)
-  const index = blogPosts.findIndex(p=> p.id ===id)
-  blogPosts[index] = {...blogPosts[index], ...req.body}
-  res.json(blogPosts[index])
+
+app.delete('/posts/:id', async (req,res) =>{
+  try{
+    await Post.findByIdAndDelete(req.params.id)
+    res.json({message : "deleted"})
+  } catch(err){
+    res.status(500).json({message : err.message})
+  }
 })
+
 
 app.post('/login', (req,res) =>{
   const{email,password} = req.body
@@ -54,6 +51,32 @@ app.post('/login', (req,res) =>{
   }
 })
 
+app.get('/posts/recent' , async (req,res) =>{
+  try{
+    const posts = await Post.find()
+    .sort({createdAt : -1})
+    .limit(3)
+    res.json(posts)
+  }catch(err){
+    res.status(500).json({message : err.message})
+  }
+})
+
+app.post('/users', async(req,res) => {
+  try{
+    const user = await User.create(req.body)
+    res.status(201).json(user)
+  }catch(err){
+    res.status(500).json({message : err.message})
+  }
+} )
+app.get('/users', async (req,res) =>{
+  try{const users = await User.find()
+    res.json(users)
+  }catch(err){
+    res.status(500).json({message : err.message})
+  }
+})
 
 
 
