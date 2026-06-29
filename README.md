@@ -1,14 +1,19 @@
-# Data Hub — RESTful API Server
+# Data Hub — RESTful API Server (Sprint 10)
 
-A lightweight REST API server built with Node.js and Express. Supports full CRUD operations for blog posts, request logging middleware, and mock authentication.
+A REST API server built with Node.js, Express, and MongoDB Atlas. 
+Supports full CRUD operations for blog posts with persistent 
+cloud storage and relational data modeling.
 
 ---
 
 ## What it does
 
-This is a backend API server — no frontend, no UI. It listens for HTTP requests and responds with JSON data. You interact with it using a tool like Postman or any frontend client.
+This is a backend API server — no frontend, no UI. It listens 
+for HTTP requests and responds with JSON data. You interact 
+with it using Postman or any frontend client.
 
-It stores data in memory (a simple array) — no database. Every time the server restarts, data resets. That's intentional for this sprint.
+Data is stored permanently in MongoDB Atlas cloud database. 
+Data persists even after server restarts.
 
 ---
 
@@ -18,81 +23,66 @@ It stores data in memory (a simple array) — no database. Every time the server
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | /posts | Get all posts |
-| GET | /posts/:id | Get a single post by ID |
+| GET | /posts | Get all posts (with author details) |
 | POST | /posts | Create a new post |
-| PUT | /posts/:id | Update an existing post |
 | DELETE | /posts/:id | Delete a post |
+| GET | /posts/recent | Get top 3 most recent posts |
+
+### Users
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /users | Get all users |
+| POST | /users | Create a new user |
 
 ### Auth
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /login | Mock login — returns a JWT token string |
+| POST | /login | Mock login — returns a JWT token |
 
 ---
 
 ## Request Examples
 
-### Create a post
-```
+### Create a User
+POST /users
+Content-Type: application/json
+{
+"name": "John Doe",
+"email": "john@gmail.com"
+}
+### Create a Post
 POST /posts
 Content-Type: application/json
-
 {
-  "title": "My First Post",
-  "content": "Hello World"
+"title": "My First Post",
+"content": "Hello MongoDB!",
+"authorId": "paste_user_id_here"
 }
-```
-
-### Update a post
-```
-PUT /posts/:id
-Content-Type: application/json
-
-{
-  "title": "Updated Title"
-}
-```
-
 ### Login
-```
 POST /login
 Content-Type: application/json
-
 {
-  "email": "test@gmail.com",
-  "password": "123456"
+"email": "test@gmail.com",
+"password": "123456"
 }
-```
-
-Response:
-```json
-{
-  "token": "mock-jwt-token-12345"
-}
-```
-
 ---
 
 ## Middleware
 
 Every incoming request is logged to the server console:
-
-```
 [GET] /posts - 10:13:12 am
 [POST] /posts - 10:14:08 am
-```
-
-This runs before every route using `app.use()`.
-
 ---
 
-## Tech used
+## Tech Stack
 
 - Node.js
 - Express
-- Nodemon (development)
+- MongoDB Atlas
+- Mongoose ODM
+- dotenv
 - Postman (testing)
 
 ---
@@ -105,24 +95,16 @@ Clone the repo and install dependencies:
 git clone https://github.com/wsmkhan2580/data-hub.git
 cd data-hub
 npm install
-```
-
+Create .env file:
+MONGO_URI=your_mongodb_atlas_connection_string
 Run locally:
-
-```bash
-npm run dev
-```
-
-Server starts on `http://localhost:5000`
-
+node server.js
+Server starts on http://localhost:5000
+Live
+Deployed on Render — data-hub-izj1.onrender.com
+Notes
+Built as Sprint 10 of an engineering residency. Focus was on
+transitioning from in-memory arrays to persistent cloud storage
+using MongoDB Atlas, Mongoose ODM, relational modeling with
+.populate(), and aggregation queries.
 ---
-
-## Live
-
-Deployed on Render — [data-hub-izj1.onrender.com](https://data-hub-izj1.onrender.com)
-
----
-
-## Notes
-
-Built as Sprint 9 of an engineering residency. Focus was on understanding REST architecture, Express routing, middleware, and API testing with Postman — not UI or database integration.
